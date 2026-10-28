@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg">#1C1C1A</color>
-    <color name="card">#2E2E2B</color>
-    <color name="card_focus">#3A3A36</color>
-    <color name="text_primary">#F1EFE8</color>
-    <color name="text_secondary">#B4B2A9</color>
-    <color name="text_muted">#888780</color>
-    <color name="divider">#4A4A46</color>
-    <color name="accent">#9FE1CB</color>
-    <color name="focus_ring">#F1EFE8</color>
+    <color name="bg">#0B0B0C</color>
+    <color name="glass">#14FFFFFF</color>
+    <color name="glass_focus">#26FFFFFF</color>
+    <color name="glass_border">#1FFFFFFF</color>
+    <color name="red">#E0243C</color>
+    <color name="red_soft">#FF6B7D</color>
+    <color name="red_ring">#FFD6DB</color>
+    <color name="text_primary">#F4EFEA</color>
+    <color name="text_secondary">#D9CCC8</color>
+    <color name="text_muted">#9C8A87</color>
+    <color name="text_faint">#7A6A68</color>
+    <color name="divider">#1AFFFFFF</color>
+    <color name="warm_tint">#2EFF8C1A</color>
 </resources>

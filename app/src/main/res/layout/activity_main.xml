@@ -1,160 +1,501 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/bg"
-    android:orientation="vertical"
-    android:paddingStart="56dp"
-    android:paddingTop="44dp"
-    android:paddingEnd="56dp"
-    android:paddingBottom="40dp">
+    android:layoutDirection="ltr">
 
-    <!-- Top row: clock on the left, prayer card on the right -->
-    <LinearLayout
+    <View
+        android:id="@+id/bgView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:orientation="horizontal">
+        android:layout_height="match_parent" />
 
+    <ScrollView
+        android:id="@+id/scroll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:scrollbars="none">
+
+    <LinearLayout
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layoutDirection="ltr"
+        android:orientation="vertical"
+        android:paddingStart="44dp"
+        android:paddingTop="20dp"
+        android:paddingEnd="44dp"
+        android:paddingBottom="16dp">
+
+        <!-- ================= TOP: clock | wifi + prayer ================= -->
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvClock"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="sans-serif-medium"
+                        android:includeFontPadding="false"
+                        android:letterSpacing="-0.03"
+                        android:text="1:08"
+                        android:textColor="@color/text_primary"
+                        android:textSize="64sp" />
+
+                    <TextView
+                        android:id="@+id/tvAmPm"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:text="AM"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:text="Thursday, 29 October 2026"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="17sp" />
+
+                <TextView
+                    android:id="@+id/tvHijri"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="18 Jumada I 1448"
+                    android:textColor="@color/text_muted"
+                    android:textSize="14sp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="bottom">
+                android:gravity="end"
+                android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/tvClock"
+                <!-- Wi-Fi chip -->
+                <LinearLayout
+                    android:id="@+id/wifiChip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:background="@drawable/wifi_chip_bg"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="6dp">
+
+                    <LinearLayout
+                        android:id="@+id/signalBars"
+                        android:layout_width="wrap_content"
+                        android:layout_height="16dp"
+                        android:gravity="bottom"
+                        android:orientation="horizontal">
+
+                        <View android:id="@+id/bar1" android:layout_width="3dp" android:layout_height="5dp" android:layout_marginEnd="2dp" android:background="@drawable/signal_bar" />
+                        <View android:id="@+id/bar2" android:layout_width="3dp" android:layout_height="8dp" android:layout_marginEnd="2dp" android:background="@drawable/signal_bar" />
+                        <View android:id="@+id/bar3" android:layout_width="3dp" android:layout_height="12dp" android:layout_marginEnd="2dp" android:background="@drawable/signal_bar" />
+                        <View android:id="@+id/bar4" android:layout_width="3dp" android:layout_height="16dp" android:background="@drawable/signal_bar" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvWifi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:maxLines="1"
+                        android:text="Wi-Fi"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ================= CARDS: prayer | display | controls ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+
+            <!-- Prayer card -->
+            <LinearLayout
+                android:id="@+id/prayerCard"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/card_accent_bg"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="12dp"
+                android:paddingBottom="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/next_prayer"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/city"
+                        android:textColor="@color/text_muted"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvNextPrayer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
                     android:fontFamily="sans-serif-medium"
-                    android:includeFontPadding="false"
-                    android:text="12:20"
+                    android:text="Fajr 5:08"
                     android:textColor="@color/text_primary"
-                    android:textSize="96sp" />
+                    android:textSize="24sp" />
 
                 <TextView
-                    android:id="@+id/tvAmPm"
+                    android:id="@+id/tvCountdown"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginBottom="14dp"
-                    android:text="AM"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="22sp" />
+                    android:text="in 3h 59m"
+                    android:textColor="@color/red_soft"
+                    android:textSize="13sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="8dp"
+                    android:background="@color/divider" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <include layout="@layout/prayer_slot" android:id="@+id/slotFajr" />
+                    <include layout="@layout/prayer_slot" android:id="@+id/slotDhuhr" />
+                    <include layout="@layout/prayer_slot" android:id="@+id/slotAsr" />
+                    <include layout="@layout/prayer_slot" android:id="@+id/slotMaghrib" />
+                    <include layout="@layout/prayer_slot" android:id="@+id/slotIsha" />
+                </LinearLayout>
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/tvDate"
-                android:layout_width="wrap_content"
+            <!-- Display panel -->
+            <LinearLayout
+                android:id="@+id/displayPanel"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Thursday, 29 October 2026"
-                android:textColor="@color/text_secondary"
-                android:textSize="20sp" />
+                android:layout_marginEnd="12dp"
+                android:layout_weight="1.25"
+                android:background="@drawable/card_bg"
+                android:orientation="vertical"
+                android:padding="12dp">
 
-            <TextView
-                android:id="@+id/tvHijri"
-                android:layout_width="wrap_content"
+                <!-- brightness slider row (focusable, left/right adjusts) -->
+                <LinearLayout
+                    android:id="@+id/brightnessRow"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/slider_row_bg"
+                    android:focusable="true"
+                    android:orientation="vertical"
+                    android:paddingStart="8dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/brightness"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+
+                        <TextView
+                            android:id="@+id/tvBrightness"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="100%"
+                            android:textColor="@color/text_primary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="4dp"
+                        android:layout_marginTop="7dp"
+                        android:background="@drawable/slider_track">
+
+                        <View
+                            android:id="@+id/brightnessFill"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/slider_fill" />
+                    </FrameLayout>
+                </LinearLayout>
+
+                <!-- presets -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView android:id="@+id/presetDay" style="@style/Chip" android:text="@string/preset_day" />
+                    <TextView android:id="@+id/presetEvening" style="@style/Chip" android:text="@string/preset_evening" />
+                    <TextView android:id="@+id/presetNight" style="@style/Chip" android:text="@string/preset_night" />
+                    <TextView android:id="@+id/presetCinema" style="@style/Chip" android:text="@string/preset_cinema" />
+                </LinearLayout>
+
+                <!-- toggles -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:orientation="horizontal">
+
+                    <TextView android:id="@+id/toggleWarm" style="@style/Chip" android:text="@string/warm" />
+                    <TextView android:id="@+id/toggleAutoIsha" style="@style/Chip" android:text="@string/auto_isha" />
+                    <TextView android:id="@+id/toggleIdle" style="@style/Chip" android:text="@string/idle_dim" />
+                    <TextView android:id="@+id/btnScreenOff" style="@style/Chip" android:text="@string/screen_off" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Controls panel -->
+            <LinearLayout
+                android:id="@+id/controlsPanel"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="17 Jumada I 1448"
-                android:textColor="@color/text_muted"
-                android:textSize="16sp" />
+                android:layout_weight="1.25"
+                android:background="@drawable/card_bg"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <!-- volume row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="@string/volume"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView android:id="@+id/btnVolDown" style="@style/ChipSmall" android:text="−" />
+
+                    <FrameLayout
+                        android:layout_width="0dp"
+                        android:layout_height="4dp"
+                        android:layout_marginStart="6dp"
+                        android:layout_marginEnd="6dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/slider_track">
+
+                        <View
+                            android:id="@+id/volumeFill"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/slider_fill" />
+                    </FrameLayout>
+
+                    <TextView android:id="@+id/btnVolUp" style="@style/ChipSmall" android:text="+" />
+                    <TextView android:id="@+id/btnMute" style="@style/ChipSmall" android:layout_marginStart="6dp" android:text="@string/mute" />
+                </LinearLayout>
+
+                <!-- inputs row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="@string/inputs"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:id="@+id/inputsRow"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal" />
+                </LinearLayout>
+
+                <!-- sleep row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvSleepLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="8dp"
+                        android:text="@string/sleep"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView android:id="@+id/sleep30" style="@style/Chip" android:text="30" />
+                    <TextView android:id="@+id/sleep60" style="@style/Chip" android:text="60" />
+                    <TextView android:id="@+id/sleep90" style="@style/Chip" android:text="90" />
+                    <TextView android:id="@+id/sleepOff" style="@style/Chip" android:text="@string/sleep_off" />
+                </LinearLayout>
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- ================= CONTINUE WATCHING ================= -->
         <LinearLayout
-            android:id="@+id/prayerCard"
-            android:layout_width="330dp"
+            android:id="@+id/continueSection"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/card_bg"
+            android:layout_marginTop="10dp"
             android:orientation="vertical"
-            android:padding="22dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/next_prayer"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/city"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="14sp" />
-            </LinearLayout>
+            android:visibility="gone">
 
             <TextView
-                android:id="@+id/tvNextPrayer"
+                android:id="@+id/tvContinueLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:fontFamily="sans-serif-medium"
-                android:text="Fajr 5:04"
-                android:textColor="@color/text_primary"
-                android:textSize="30sp" />
+                android:layout_marginBottom="6dp"
+                android:letterSpacing="0.1"
+                android:text="@string/continue_watching"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp" />
 
-            <TextView
-                android:id="@+id/tvCountdown"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="in 4h 44m"
-                android:textColor="@color/accent"
-                android:textSize="15sp" />
-
-            <View
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/continueRow"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="12dp"
-                android:background="@color/divider" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <include layout="@layout/prayer_slot" android:id="@+id/slotFajr" />
-                <include layout="@layout/prayer_slot" android:id="@+id/slotDhuhr" />
-                <include layout="@layout/prayer_slot" android:id="@+id/slotAsr" />
-                <include layout="@layout/prayer_slot" android:id="@+id/slotMaghrib" />
-                <include layout="@layout/prayer_slot" android:id="@+id/slotIsha" />
-            </LinearLayout>
+                android:layout_height="82dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:descendantFocusability="afterDescendants"
+                android:focusable="false"
+                android:orientation="horizontal"
+                android:paddingStart="4dp"
+                android:paddingEnd="4dp" />
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- Bottom: app row -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <!-- ================= APPS ================= -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:letterSpacing="0.1"
+                android:text="@string/my_apps"
+                android:textColor="@color/text_muted"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/tvMoveHint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/move_hint"
+                android:textColor="@color/text_faint"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/appsRow"
+            android:layout_width="match_parent"
+            android:layout_height="114dp"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:descendantFocusability="afterDescendants"
+            android:focusable="false"
+            android:orientation="horizontal"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp" />
+    </LinearLayout>
+    </ScrollView>
+
+    <!-- in-app dim + warm overlays (used when the global overlay isn't allowed) -->
+    <View
+        android:id="@+id/warmView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/warm_tint"
+        android:visibility="gone" />
+
+    <View
+        android:id="@+id/dimView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:alpha="0"
+        android:background="#000000" />
+
     <TextView
+        android:id="@+id/tvScreenOffHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:text="@string/my_apps"
-        android:textColor="@color/text_muted"
-        android:textSize="14sp" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/appsRow"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:clipToPadding="false"
-        android:clipChildren="false"
-        android:descendantFocusability="afterDescendants"
-        android:focusable="false"
-        android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp" />
-</LinearLayout>
+        android:layout_gravity="center"
+        android:text="@string/screen_off_hint"
+        android:textColor="#33FFFFFF"
+        android:textSize="13sp"
+        android:visibility="gone" />
+</FrameLayout>

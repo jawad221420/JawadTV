@@ -7,31 +7,65 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.util.Collections
 
 data class AppEntry(
     val packageName: String,
     val label: String,
     val banner: Drawable?,
     val icon: Drawable?,
-    val isSettings: Boolean = false,
-    var pinned: Boolean = false
+    val isSettings: Boolean = false
 )
 
 class AppAdapter(
     private val onOpen: (AppEntry) -> Unit,
-    private val onLongPress: (AppEntry) -> Unit
+    private val onLongPress: (Int) -> Unit
 ) : RecyclerView.Adapter<AppAdapter.Holder>() {
 
-    private val items = ArrayList<AppEntry>()
+    val items = ArrayList<AppEntry>()
+
+    /** Index of the tile currently being moved, or -1. */
+    var movingPosition = -1
+        private set
 
     fun submit(list: List<AppEntry>) {
         items.clear()
         items.addAll(list)
+        movingPosition = -1
         notifyDataSetChanged()
+    }
+
+    fun startMoving(position: Int) {
+        if (position < 0 || position >= items.size || items[position].isSettings) return
+        val old = movingPosition
+        movingPosition = position
+        if (old >= 0) notifyItemChanged(old)
+        notifyItemChanged(position)
+    }
+
+    fun stopMoving() {
+        val old = movingPosition
+        movingPosition = -1
+        if (old >= 0) notifyItemChanged(old)
+    }
+
+    /** Moves the moving tile one step; returns the new position or -1 if it can't move. */
+    fun moveBy(delta: Int): Int {
+        val from = movingPosition
+        if (from < 0) return -1
+        val to = from + delta
+        if (to < 0 || to >= items.size || items[to].isSettings) return -1
+        Collections.swap(items, from, to)
+        movingPosition = to
+        notifyItemMoved(from, to)
+        notifyItemChanged(from)
+        notifyItemChanged(to)
+        return to
     }
 
     class Holder(view: View) : RecyclerView.ViewHolder(view) {
         val tile: View = view.findViewById(R.id.tile)
+        val frame: View = view.findViewById(R.id.tileFrame)
         val banner: ImageView = view.findViewById(R.id.tileBanner)
         val icon: ImageView = view.findViewById(R.id.tileIcon)
         val label: TextView = view.findViewById(R.id.tileLabel)
@@ -46,7 +80,7 @@ class AppAdapter(
 
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = items[position]
-        holder.label.text = if (item.pinned) "★ " + item.label else item.label
+        holder.label.text = item.label
 
         if (item.banner != null) {
             holder.banner.visibility = View.VISIBLE
@@ -58,9 +92,15 @@ class AppAdapter(
             holder.icon.setImageDrawable(item.icon)
         }
 
+        val moving = position == movingPosition
+        holder.frame.setBackgroundResource(if (moving) R.drawable.tile_moving_bg else R.drawable.tile_bg)
+        holder.label.setTextColor(
+            holder.itemView.context.getColor(if (moving || holder.tile.isFocused) R.color.text_primary else R.color.text_secondary)
+        )
+
         holder.tile.setOnClickListener { onOpen(item) }
         holder.tile.setOnLongClickListener {
-            onLongPress(item)
+            onLongPress(holder.bindingAdapterPosition)
             true
         }
         holder.tile.setOnFocusChangeListener { v, hasFocus ->
