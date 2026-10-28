@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg">#1C1C1A</color>
+    <color name="card">#2E2E2B</color>
+    <color name="card_focus">#3A3A36</color>
+    <color name="text_primary">#F1EFE8</color>
+    <color name="text_secondary">#B4B2A9</color>
+    <color name="text_muted">#888780</color>
+    <color name="divider">#4A4A46</color>
+    <color name="accent">#9FE1CB</color>
+    <color name="focus_ring">#F1EFE8</color>
+</resources>
