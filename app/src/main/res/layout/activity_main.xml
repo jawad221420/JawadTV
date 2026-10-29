@@ -420,7 +420,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/continueRow"
                 android:layout_width="match_parent"
-                android:layout_height="82dp"
+                android:layout_height="118dp"
                 android:clipChildren="false"
                 android:clipToPadding="false"
                 android:descendantFocusability="afterDescendants"
@@ -463,7 +463,7 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/appsRow"
             android:layout_width="match_parent"
-            android:layout_height="114dp"
+            android:layout_height="128dp"
             android:clipChildren="false"
             android:clipToPadding="false"
             android:descendantFocusability="afterDescendants"

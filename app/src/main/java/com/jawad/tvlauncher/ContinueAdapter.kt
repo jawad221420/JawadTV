@@ -26,7 +26,9 @@ data class ContinueItem(
     val posterUri: String?,
     val intentUri: String?,
     val packageName: String?,
-    val fallbackDrawable: Drawable? = null
+    val fallbackDrawable: Drawable? = null,
+    /** 0..1 playback progress, or -1 when unknown. */
+    val progress: Float = -1f
 )
 
 class ContinueAdapter(private val onOpen: (ContinueItem) -> Unit) :
@@ -47,6 +49,8 @@ class ContinueAdapter(private val onOpen: (ContinueItem) -> Unit) :
         val tile: View = view.findViewById(R.id.cwTile)
         val image: ImageView = view.findViewById(R.id.cwImage)
         val title: TextView = view.findViewById(R.id.cwTitle)
+        val track: View = view.findViewById(R.id.cwProgressTrack)
+        val progress: View = view.findViewById(R.id.cwProgress)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder =
@@ -77,6 +81,17 @@ class ContinueAdapter(private val onOpen: (ContinueItem) -> Unit) :
                     }
                 }
             }
+        }
+
+        if (item.progress >= 0f) {
+            holder.track.visibility = View.VISIBLE
+            holder.track.post {
+                holder.progress.layoutParams = holder.progress.layoutParams.apply {
+                    width = (holder.track.width * item.progress).toInt()
+                }
+            }
+        } else {
+            holder.track.visibility = View.GONE
         }
 
         holder.tile.setOnClickListener { onOpen(item) }
@@ -115,7 +130,10 @@ class ContinueAdapter(private val onOpen: (ContinueItem) -> Unit) :
                         val p = WatchNextProgram.fromCursor(it)
                         val title = p.title ?: continue
                         val poster = p.posterArtUri?.toString() ?: p.thumbnailUri?.toString()
-                        out.add(ContinueItem(title, poster, p.intentUri?.toString(), p.packageName))
+                        val dur = p.durationMillis
+                        val pos = p.lastPlaybackPositionMillis
+                        val progress = if (dur > 0 && pos >= 0) (pos.toFloat() / dur).coerceIn(0f, 1f) else -1f
+                        out.add(ContinueItem(title, poster, p.intentUri?.toString(), p.packageName, null, progress))
                     }
                 }
             } catch (e: Exception) {

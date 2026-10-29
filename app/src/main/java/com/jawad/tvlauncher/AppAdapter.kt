@@ -82,18 +82,19 @@ class AppAdapter(
         val item = items[position]
         holder.label.text = item.label
 
-        if (item.banner != null) {
-            holder.banner.visibility = View.VISIBLE
-            holder.icon.visibility = View.GONE
-            holder.banner.setImageDrawable(item.banner)
-        } else {
+        // Google TV style: the app icon inside a circle (banner only as a last resort)
+        if (item.icon != null) {
             holder.banner.visibility = View.GONE
             holder.icon.visibility = View.VISIBLE
             holder.icon.setImageDrawable(item.icon)
+        } else {
+            holder.icon.visibility = View.GONE
+            holder.banner.visibility = View.VISIBLE
+            holder.banner.setImageDrawable(item.banner)
         }
 
         val moving = position == movingPosition
-        holder.frame.setBackgroundResource(if (moving) R.drawable.tile_moving_bg else R.drawable.tile_bg)
+        holder.frame.setBackgroundResource(if (moving) R.drawable.circle_moving_bg else R.drawable.circle_bg)
         holder.label.setTextColor(
             holder.itemView.context.getColor(if (moving || holder.tile.isFocused) R.color.text_primary else R.color.text_secondary)
         )
@@ -104,7 +105,7 @@ class AppAdapter(
             true
         }
         holder.tile.setOnFocusChangeListener { v, hasFocus ->
-            val scale = if (hasFocus) 1.08f else 1.0f
+            val scale = if (hasFocus) 1.12f else 1.0f
             v.animate().scaleX(scale).scaleY(scale).setDuration(140).start()
             holder.label.setTextColor(
                 v.context.getColor(if (hasFocus) R.color.text_primary else R.color.text_secondary)

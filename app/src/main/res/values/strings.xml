@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Jawad TV</string>
-    <string name="my_apps">MY APPS</string>
-    <string name="move_hint">Hold OK to move</string>
-    <string name="moving_hint">◀ ▶ move · OK done</string>
+    <string name="my_apps">YOUR APPS</string>
+    <string name="move_hint">Hold OK (or ☰) to move</string>
+    <string name="moving_hint">MOVING  ◀ ▶  ·  OK to place</string>
     <string name="continue_watching">CONTINUE WATCHING</string>
     <string name="recent_apps">RECENT</string>
     <string name="next_prayer">Next prayer</string>

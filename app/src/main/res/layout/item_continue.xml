@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/cwTile"
-    android:layout_width="156dp"
-    android:layout_height="78dp"
+    android:layout_width="196dp"
+    android:layout_height="112dp"
     android:layout_marginEnd="10dp"
     android:background="@drawable/tile_bg"
     android:clickable="true"
@@ -22,7 +22,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:layout_margin="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="10dp"
         android:background="#A0000000"
         android:ellipsize="end"
         android:maxLines="1"
@@ -33,4 +35,22 @@
         android:text="Title"
         android:textColor="@color/text_primary"
         android:textSize="11sp" />
+
+    <FrameLayout
+        android:id="@+id/cwProgressTrack"
+        android:layout_width="match_parent"
+        android:layout_height="4dp"
+        android:layout_gravity="bottom"
+        android:layout_marginStart="6dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:background="#66FFFFFF"
+        android:visibility="gone">
+
+        <View
+            android:id="@+id/cwProgress"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:background="@color/red" />
+    </FrameLayout>
 </FrameLayout>

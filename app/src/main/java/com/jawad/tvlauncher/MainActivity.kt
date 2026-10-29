@@ -649,17 +649,34 @@ class MainActivity : AppCompatActivity() {
         prefs().edit().putString(KEY_ORDER, order).apply()
     }
 
+    private var moveStartedAt = 0L
+
     private fun startMove(position: Int) {
+        if (adapter.movingPosition == position) return
+        moveStartedAt = System.currentTimeMillis()
         adapter.startMoving(position)
         tvMoveHint.text = getString(R.string.moving_hint)
         tvMoveHint.setTextColor(getColor(R.color.red_soft))
+        tvMoveHint.textSize = 13f
+        Toast.makeText(this, R.string.moving_hint, Toast.LENGTH_SHORT).show()
     }
 
     private fun finishMove() {
+        // ignore the OK release that belongs to the long-press which started the move
+        if (System.currentTimeMillis() - moveStartedAt < 400) return
         adapter.stopMoving()
         saveOrder()
         tvMoveHint.text = getString(R.string.move_hint)
         tvMoveHint.setTextColor(getColor(R.color.text_faint))
+        tvMoveHint.textSize = 11f
+    }
+
+    private fun focusedAppPosition(): Int {
+        val focused = currentFocus ?: return -1
+        var v: View? = focused
+        while (v != null && v.parent !== appsRow) v = v.parent as? View
+        if (v == null) return -1
+        return appsRow.getChildAdapterPosition(v)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
@@ -667,6 +684,21 @@ class MainActivity : AppCompatActivity() {
             resetIdleTimer()
             if (screenOff) {
                 setScreenOff(false)
+                return true
+            }
+            val isSelect = event.keyCode == KeyEvent.KEYCODE_DPAD_CENTER || event.keyCode == KeyEvent.KEYCODE_ENTER
+            if (adapter.movingPosition < 0) {
+                // Start move mode: Menu key, or OK held for ~0.5 s (key repeat), on an app tile
+                val longHold = isSelect && event.repeatCount >= 2
+                val menu = event.keyCode == KeyEvent.KEYCODE_MENU
+                if (longHold || menu) {
+                    val pos = focusedAppPosition()
+                    if (pos >= 0 && !adapter.items[pos].isSettings) {
+                        startMove(pos)
+                        return true
+                    }
+                }
+            } else if (isSelect && event.repeatCount > 0) {
                 return true
             }
             if (adapter.movingPosition >= 0) {
@@ -679,7 +711,7 @@ class MainActivity : AppCompatActivity() {
                         }
                         return true
                     }
-                    KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_BACK -> {
+                    KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_BACK, KeyEvent.KEYCODE_MENU -> {
                         finishMove()
                         return true
                     }
