@@ -86,6 +86,7 @@ class AppAdapter(
         if (item.icon != null) {
             holder.banner.visibility = View.GONE
             holder.icon.visibility = View.VISIBLE
+            holder.icon.clipToOutline = true
             holder.icon.setImageDrawable(item.icon)
         } else {
             holder.icon.visibility = View.GONE

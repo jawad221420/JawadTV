@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
-import android.graphics.drawable.GradientDrawable
 import android.media.AudioManager
 import android.media.tv.TvContract
 import android.media.tv.TvInputManager
@@ -39,7 +38,8 @@ class MainActivity : AppCompatActivity() {
     private val longitude = 39.1728
 
     // ---- views
-    private lateinit var bgView: View
+    private lateinit var bgView: VelvetBackgroundView
+    private lateinit var neonSign: NeonSignView
     private lateinit var dimView: View
     private lateinit var warmView: View
     private lateinit var tvScreenOffHint: TextView
@@ -66,6 +66,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var inputsRow: LinearLayout
     private lateinit var tvSleepLabel: TextView
     private lateinit var sleepChips: Map<Int, TextView>
+    private lateinit var alarmTime: TextView
+    private lateinit var alarmFajr: TextView
+    private lateinit var alarmRepeat: TextView
+    private lateinit var alarmSound: TextView
+    private lateinit var alarmOnOff: TextView
+    private lateinit var tvAlarmLabel: TextView
     private lateinit var continueSection: View
     private lateinit var tvContinueLabel: TextView
     private lateinit var continueRow: RecyclerView
@@ -76,6 +82,7 @@ class MainActivity : AppCompatActivity() {
     private val prayer = PrayerTimes(latitude, longitude)
     private val adapter = AppAdapter(onOpen = ::openApp, onLongPress = ::startMove)
     private val continueAdapter = ContinueAdapter(onOpen = ::openContinue)
+    private val recentAdapter = AppAdapter(onOpen = ::openApp, onLongPress = { })
     private val handler = Handler(Looper.getMainLooper())
     private var lastMinute = -1
     private var ishaTodayMillis = 0L
@@ -128,6 +135,15 @@ class MainActivity : AppCompatActivity() {
         continueRow.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         continueRow.adapter = continueAdapter
 
+        window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        neonSign.setOnClickListener {
+            val list = NeonSignView.MOODS + "AUTO"
+            val cur = prefs().getString(KEY_MOOD, "AUTO") ?: "AUTO"
+            val next = list[(list.indexOf(cur) + 1) % list.size]
+            prefs().edit().putString(KEY_MOOD, next).apply()
+            applyMood()
+            Toast.makeText(this, if (next == "AUTO") "Mood: auto" else "Mood: $next", Toast.LENGTH_SHORT).show()
+        }
         setupDisplayPanel()
         setupControlsPanel()
         wifiChip.setOnClickListener { openSettings(Settings.ACTION_WIFI_SETTINGS) }
@@ -166,6 +182,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun bindViews() {
         bgView = findViewById(R.id.bgView)
+        neonSign = findViewById(R.id.neonSign)
         dimView = findViewById(R.id.dimView)
         warmView = findViewById(R.id.warmView)
         tvScreenOffHint = findViewById(R.id.tvScreenOffHint)
@@ -208,6 +225,12 @@ class MainActivity : AppCompatActivity() {
             90 to findViewById(R.id.sleep90),
             0 to findViewById(R.id.sleepOff)
         )
+        alarmTime = findViewById(R.id.alarmTime)
+        alarmFajr = findViewById(R.id.alarmFajr)
+        alarmRepeat = findViewById(R.id.alarmRepeat)
+        alarmSound = findViewById(R.id.alarmSound)
+        alarmOnOff = findViewById(R.id.alarmOnOff)
+        tvAlarmLabel = findViewById(R.id.tvAlarmLabel)
         continueSection = findViewById(R.id.continueSection)
         tvContinueLabel = findViewById(R.id.tvContinueLabel)
         continueRow = findViewById(R.id.continueRow)
@@ -256,8 +279,10 @@ class MainActivity : AppCompatActivity() {
             tvHijri.text = hijriDate(now)
             updatePrayers(now)
             updateBackground(now)
+            applyMood()
             checkAutoIsha(now)
             updateSleepChips()
+            updateAlarmRow()
         }
     }
 
@@ -307,17 +332,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /** Deep black → wine-red gradient whose intensity follows the time of day. */
+    private fun applyMood() {
+        val manual = prefs().getString(KEY_MOOD, "AUTO") ?: "AUTO"
+        neonSign.mood = if (manual == "AUTO") NeonSignView.moodFor(Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) else manual
+    }
+
+    /** Velvet glow: strong by day, calmer in the evening, dim at night. */
     private fun updateBackground(now: Calendar) {
         val h = now.get(Calendar.HOUR_OF_DAY)
-        val colors = when {
-            h in 6..16 -> intArrayOf(0xFF121214.toInt(), 0xFF2A0D12.toInt(), 0xFF6E1020.toInt())
-            h in 17..21 -> intArrayOf(0xFF0B0B0C.toInt(), 0xFF15090B.toInt(), 0xFF3B0A12.toInt())
-            else -> intArrayOf(0xFF070708.toInt(), 0xFF0E0608.toInt(), 0xFF220710.toInt())
+        bgView.intensity = when {
+            h in 6..16 -> 1.0f
+            h in 17..21 -> 0.75f
+            else -> 0.45f
         }
-        val g = GradientDrawable(GradientDrawable.Orientation.TL_BR, colors)
-        g.gradientType = GradientDrawable.LINEAR_GRADIENT
-        bgView.background = g
     }
 
     private fun checkAutoIsha(now: Calendar) {
@@ -440,6 +467,69 @@ class MainActivity : AppCompatActivity() {
             updateVolume()
         }
         sleepChips.forEach { (minutes, chip) -> chip.setOnClickListener { setSleep(minutes) } }
+        setupAlarmRow()
+    }
+
+    // ------------------------------------------------------------------ alarm
+
+    private fun setupAlarmRow() {
+        alarmTime.setOnKeyListener { _, keyCode, event ->
+            if (event.action != KeyEvent.ACTION_DOWN) return@setOnKeyListener false
+            when (keyCode) {
+                KeyEvent.KEYCODE_DPAD_LEFT -> { AlarmScheduler.setMinutes(this, AlarmScheduler.minutes(this) - 15); AlarmScheduler.setFajr(this, false); updateAlarmRow(); true }
+                KeyEvent.KEYCODE_DPAD_RIGHT -> { AlarmScheduler.setMinutes(this, AlarmScheduler.minutes(this) + 15); AlarmScheduler.setFajr(this, false); updateAlarmRow(); true }
+                else -> false
+            }
+        }
+        alarmTime.setOnClickListener {
+            Toast.makeText(this, R.string.alarm_time_hint, Toast.LENGTH_SHORT).show()
+        }
+        alarmFajr.setOnClickListener {
+            AlarmScheduler.setFajr(this, !AlarmScheduler.isFajr(this)); updateAlarmRow()
+        }
+        alarmRepeat.setOnClickListener {
+            AlarmScheduler.setDaily(this, !AlarmScheduler.isDaily(this)); updateAlarmRow()
+        }
+        alarmSound.setOnClickListener {
+            val next = if (AlarmScheduler.sound(this) == "chime") "custom" else "chime"
+            AlarmScheduler.setSound(this, next)
+            if (next == "custom") {
+                Toast.makeText(this, R.string.alarm_custom_hint, Toast.LENGTH_LONG).show()
+                if (Build.VERSION.SDK_INT in Build.VERSION_CODES.M..32 &&
+                    checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    try { requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 2) } catch (e: Exception) {}
+                }
+            }
+            updateAlarmRow()
+        }
+        alarmOnOff.setOnClickListener {
+            val on = !AlarmScheduler.isEnabled(this)
+            AlarmScheduler.setEnabled(this, on)
+            updateAlarmRow()
+            if (on) {
+                val next = AlarmScheduler.nextTrigger(this)
+                if (next > 0) {
+                    Toast.makeText(this, getString(R.string.alarm_set, SimpleDateFormat("EEE h:mm a", Locale.ENGLISH).format(java.util.Date(next))), Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+        updateAlarmRow()
+    }
+
+    private fun updateAlarmRow() {
+        val fajr = AlarmScheduler.isFajr(this)
+        val enabled = AlarmScheduler.isEnabled(this)
+        alarmTime.text = if (fajr) {
+            val next = AlarmScheduler.nextTrigger(this).takeIf { it > 0 }
+            if (next != null) "Fajr " + timeFormat.format(java.util.Date(next)) else "Fajr"
+        } else AlarmScheduler.formatMinutes(AlarmScheduler.minutes(this))
+        alarmTime.isSelected = enabled
+        alarmFajr.isSelected = fajr
+        alarmRepeat.text = getString(if (AlarmScheduler.isDaily(this)) R.string.alarm_daily else R.string.alarm_once)
+        alarmSound.text = getString(if (AlarmScheduler.sound(this) == "chime") R.string.alarm_chime else R.string.alarm_custom)
+        alarmOnOff.text = getString(if (enabled) R.string.alarm_on else R.string.alarm_off)
+        alarmOnOff.isSelected = enabled
+        tvAlarmLabel.setTextColor(getColor(if (enabled) R.color.red_soft else R.color.text_secondary))
     }
 
     private fun adjustVolume(direction: Int) {
@@ -765,7 +855,20 @@ class MainActivity : AppCompatActivity() {
                 items = ContinueAdapter.loadRecent(this, recent)
             }
             runOnUiThread {
-                continueAdapter.submit(items)
+                if (fromWatchNext) {
+                    if (continueRow.adapter !== continueAdapter) continueRow.adapter = continueAdapter
+                    continueAdapter.submit(items)
+                } else {
+                    if (continueRow.adapter !== recentAdapter) continueRow.adapter = recentAdapter
+                    val pm = packageManager
+                    val entries = items.mapNotNull { it.packageName }.mapNotNull { pkg ->
+                        try {
+                            val info = pm.getApplicationInfo(pkg, 0)
+                            AppEntry(pkg, pm.getApplicationLabel(info).toString(), null, pm.getApplicationIcon(info))
+                        } catch (e: Exception) { null }
+                    }
+                    recentAdapter.submit(entries)
+                }
                 continueSection.visibility = if (items.isEmpty()) View.GONE else View.VISIBLE
                 tvContinueLabel.text = getString(if (fromWatchNext) R.string.continue_watching else R.string.recent_apps)
             }
@@ -786,6 +889,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val KEY_ORDER = "order"
+        private const val KEY_MOOD = "mood"
         private const val KEY_RECENT = "recent"
         private const val KEY_BRIGHTNESS = "brightness"
         private const val KEY_WARM = "warm"

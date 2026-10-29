@@ -34,4 +34,18 @@
     <string name="dim_notification">Jawad TV display control</string>
     <string name="home_watch_label">Jawad TV home button</string>
     <string name="home_watch_desc">Makes the Home button open Jawad TV instead of the stock Google TV screen.</string>
+    <string name="alarm">Alarm</string>
+    <string name="alarm_title">ALARM</string>
+    <string name="alarm_snooze">Snooze 5 min</string>
+    <string name="alarm_dismiss">Stop</string>
+    <string name="alarm_fajr">Fajr</string>
+    <string name="alarm_daily">Daily</string>
+    <string name="alarm_once">Once</string>
+    <string name="alarm_chime">Chime</string>
+    <string name="alarm_custom">Custom</string>
+    <string name="alarm_on">On</string>
+    <string name="alarm_off">Off</string>
+    <string name="alarm_time_hint">◀ ▶ changes the time by 15 min</string>
+    <string name="alarm_custom_hint">Custom sound: put alarm.mp3 in the TV\'s Download folder</string>
+    <string name="alarm_set">Alarm set for %1$s</string>
 </resources>
