@@ -11,13 +11,33 @@ android {
         applicationId = "com.jawad.tvlauncher"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.0"
+        versionCode = 3
+        versionName = "3.0"
+    }
+
+    signingConfigs {
+        create("shared") {
+            val ks = rootProject.file("app/jawadtv.keystore")
+            if (ks.exists()) {
+                storeFile = ks
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+                keyAlias = "jawadtv"
+                keyPassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+            }
+        }
     }
 
     buildTypes {
+        debug {
+            if (rootProject.file("app/jawadtv.keystore").exists()) {
+                signingConfig = signingConfigs.getByName("shared")
+            }
+        }
         release {
             isMinifyEnabled = false
+            if (rootProject.file("app/jawadtv.keystore").exists()) {
+                signingConfig = signingConfigs.getByName("shared")
+            }
         }
     }
 

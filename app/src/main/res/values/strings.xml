@@ -32,4 +32,6 @@
     <string name="ethernet">Ethernet</string>
     <string name="offline">Offline</string>
     <string name="dim_notification">Jawad TV display control</string>
+    <string name="home_watch_label">Jawad TV home button</string>
+    <string name="home_watch_desc">Makes the Home button open Jawad TV instead of the stock Google TV screen.</string>
 </resources>
